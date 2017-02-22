@@ -29,6 +29,7 @@ npm start
 
 ## Run Project
 > Navigate to Root Folder, in our case `my-proj`.
+
 ```shell
 npm start
 ```
