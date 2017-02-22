@@ -3,6 +3,4 @@ node_modules
 client/node_modules
 client/app/*.js
 client/app/*.js.map
-client/app/twitter/*.js
-client/app/twitter/*.js.map
 node_modules/
