@@ -28,6 +28,14 @@ npm start
 ```
 
 ## Run Project
+> Update MongoDB Url in the Api File `\routes\mongoapi.js`.
+As this is just an starter project, customization and other features are in developement.
+var url = 'mongodb://<connection-url>/<database-name>'
+Something like this:
+var url = 'mongodb://localhost:27017/mongodbapi';
+Or you can also have External Url from MongoLab or etc.
+
+
 > Navigate to Root Folder, in our case `my-proj`.
 
 ```shell
