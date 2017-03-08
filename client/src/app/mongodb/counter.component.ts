@@ -3,21 +3,8 @@ import { MongoDBService } from './services/mongodb.service';
 
 @Component({
   selector: 'counter',
-  styles: [`
-    chart {
-      display: block;
-    }
-    button {
-      display: block;
-      width: 100%;
-      height: 25px;
-    }
-  `],
-  template:  `<chart [options]="options" (load)="saveChart($event.context)">
-								<series (hide)="onSeriesHide($event.context)">
-									<point (select)="onPointSelect($event.context)"></point>
-								</series>
-							</chart>`,
+  templateUrl: 'app/mongodb/counter.component.html',
+  styleUrls: ['app/mongodb/counter.component.css'],
 })
 export class CounterComponent  { 
   nameChart = 'MongoDB Document Counter'; 
@@ -31,26 +18,51 @@ export class CounterComponent  {
         title : { text : this.nameChart },
         series: this.seriesOptions
     };
+
     this.initiateGraph();
-    var classInstance = this;
-    setInterval(function(){
-      classInstance._MongoDBService.getAllCollectionsCount()
+    this.initiateFetchingLoop();
+  }
+
+  initiateFetchingLoop(){
+    var docCountInstance = this;
+    var docCountInterval = setInterval(function(){
+      docCountInstance._MongoDBService.getAllCollectionsCount()
       .subscribe(
         countArray => {
-          classInstance.addGraphPoint(countArray);
+          docCountInstance.addGraphPoint(countArray);
         }
       );
     }, 2000);
-  }
+    
 
+    var clcCountInstance = this;
+    var clcCountInterval = setInterval(function(){
+      clcCountInstance._MongoDBService.getAllCollections()
+      .subscribe(
+        collectionsArray => {
+          console.log("Current Collection Counts: " + clcCountInstance.seriesOptions.length);
+          console.log("Fetched Collection Counts: " + collectionsArray.length);
+
+          if(collectionsArray.length !== clcCountInstance.seriesOptions.length){
+            console.log("Collections Modified, Initiating Graph!");
+            clearInterval(docCountInterval);
+            clearInterval(clcCountInterval);
+            clcCountInstance.initiateGraph();
+            clcCountInstance.initiateFetchingLoop();
+          }
+        }
+      );
+      
+    }, 10000);
+  }
 
   initiateGraph(){
 
     this._MongoDBService.getAllCollections()
       .subscribe(
         collectionsArray => {
+          this.seriesOptions = [];
           var index = 0;
-          // collection: any;
           for(let collection of collectionsArray){
             console.log(collection["name"]);
             this.seriesOptions[index] = {
@@ -65,23 +77,23 @@ export class CounterComponent  {
      
     var currentInstance = this;
     var chartDelay = setInterval(function(){       
-      console.log("seriesOptions");
+      console.log("Series Options");
       console.dir(currentInstance.seriesOptions);
       currentInstance.options = {
           title : { text : 'MongoDB Document Counter' },
           series: currentInstance.seriesOptions
       };
-      console.log("Options");
-      console.dir(currentInstance.options);
+      // console.log("Options");
+      // console.dir(currentInstance.options);
       clearInterval(chartDelay);
     }, 1000);
 
   }
 
   addGraphPoint(countArray: Object){
-    this.chart.series[0].addPoint( countArray['0'] );
-    this.chart.series[1].addPoint( countArray['1'] );
-    this.chart.series[2].addPoint( countArray['2'] );
+    for(var objAttr in countArray){
+      this.chart.series[objAttr].addPoint( countArray[objAttr] );
+    }
   }
   
   saveChart(chart: Object) {
