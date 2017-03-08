@@ -42,11 +42,8 @@ export class CounterComponent  {
       clcCountInstance._MongoDBService.getAllCollections()
       .subscribe(
         collectionsArray => {
-          console.log("Current Collection Counts: " + clcCountInstance.seriesOptions.length);
-          console.log("Fetched Collection Counts: " + collectionsArray.length);
-
           if(collectionsArray.length !== clcCountInstance.seriesOptions.length){
-            console.log("Collections Modified, Initiating Graph!");
+            console.log("Collection(s) Modified, Initiating Graph!");
             clearInterval(docCountInterval);
             clearInterval(clcCountInterval);
             clcCountInstance.initiateGraph();
