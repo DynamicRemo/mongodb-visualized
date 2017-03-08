@@ -34,8 +34,8 @@ You can also have External Url from MongoLab or etc.
 
 ```shell
 var url = 'mongodb://<connection-url>/<database-name>'
-Something like this:
 
+Something like this:
 var url = 'mongodb://localhost:27017/mongodbapi';
 ```
 
