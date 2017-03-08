@@ -11,6 +11,7 @@ export class CounterComponent  {
   options: Object;
   chart: any;
   seriesOptions = new Array();
+  addNewPointObject: Object;
   
   constructor(private _MongoDBService:MongoDBService) {
     
@@ -20,10 +21,11 @@ export class CounterComponent  {
     };
 
     this.initiateGraph();
-    this.initiateFetchingLoop();
   }
 
   initiateFetchingLoop(){
+    this.addNewPointObject = Object;
+
     var docCountInstance = this;
     var docCountInterval = setInterval(function(){
       docCountInstance._MongoDBService.getAllCollectionsCount()
@@ -48,7 +50,6 @@ export class CounterComponent  {
             clearInterval(docCountInterval);
             clearInterval(clcCountInterval);
             clcCountInstance.initiateGraph();
-            clcCountInstance.initiateFetchingLoop();
           }
         }
       );
@@ -57,14 +58,12 @@ export class CounterComponent  {
   }
 
   initiateGraph(){
-
     this._MongoDBService.getAllCollections()
       .subscribe(
         collectionsArray => {
           this.seriesOptions = [];
           var index = 0;
           for(let collection of collectionsArray){
-            console.log(collection["name"]);
             this.seriesOptions[index] = {
               name : collection["name"],
               data : [0],
@@ -78,22 +77,32 @@ export class CounterComponent  {
     var currentInstance = this;
     var chartDelay = setInterval(function(){       
       console.log("Series Options");
-      console.dir(currentInstance.seriesOptions);
+      console.log(currentInstance.seriesOptions);
+      
       currentInstance.options = {
           title : { text : 'MongoDB Document Counter' },
           series: currentInstance.seriesOptions
       };
-      // console.log("Options");
-      // console.dir(currentInstance.options);
+
+      currentInstance.initiateFetchingLoop();
       clearInterval(chartDelay);
     }, 1000);
 
   }
 
   addGraphPoint(countArray: Object){
-    for(var objAttr in countArray){
-      this.chart.series[objAttr].addPoint( countArray[objAttr] );
+
+    if( JSON.stringify(this.addNewPointObject) !== JSON.stringify(countArray)  ){
+      var ind = 0;
+      for(var objAttr in countArray){
+        if(ind < this.seriesOptions.length){
+          this.chart.series[objAttr].addPoint( countArray[objAttr] );
+          ind++;
+        }
+      }
+      this.addNewPointObject = countArray; 
     }
+
   }
   
   saveChart(chart: Object) {
